@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudOS | Unified Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- DESIGN SYSTEM --- */
+        :root {
+            --bg: #0a0b0d;
+            --sidebar: #121316;
+            --surface: #1a1b1e;
+            --accent: #5865f2;
+            --border: #2d2e32;
+            --text-main: #ffffff;
+            --text-dim: #8e8e93;
+            --mac-red: #ff5f56;
+            --mac-yellow: #ffbd2e;
+            --mac-green: #27c93f;
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100%;
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            height: 100vh;
+        }
+
+        /* --- SIDEBAR --- */
+        aside {
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .window-controls {
+            display: flex; gap: 8px; padding-bottom: 10px;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: var(--mac-red); }
+        .yellow { background: var(--mac-yellow); }
+        .green { background: var(--mac-green); }
+
+        .nav-section h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+        }
+
+        .nav-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dim);
+            cursor: pointer;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--surface);
+            color: var(--text-main);
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, #16171b, #0a0b0d);
+        }
+
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-area {
+            flex: 1;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* --- GOOGLE WIDGET OVERRIDES --- */
+        /* Making the Google script match the Matte UI */
+        .gcse-search {
+            background: var(--surface) !important;
+            padding: 20px !important;
+            border-radius: 16px !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        .gsc-control-cse {
+            background-color: transparent !important;
+            border: none !important;
+        }
+
+        .gsc-input-box {
+            background-color: #25262b !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 8px !important;
+            padding: 5px !important;
+        }
+
+        input.gsc-input {
+            color: white !important;
+            background: transparent !important;
+        }
+
+        .gsc-search-button-v2 {
+            background-color: var(--accent) !important;
+            border-radius: 8px !important;
+            padding: 10px 20px !important;
+        }
+
+        /* --- UTILITY --- */
+        .system-time { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+
+        @media (max-width: 850px) {
+            .app-container { grid-template-columns: 1fr; }
+            aside { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <aside>
+            <div class="window-controls">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+
+            <div class="nav-section">
+                <h3>Workspace</h3>
+                <div class="nav-item active">Search Core</div>
+                <div class="nav-item">Documentation</div>
+                <div class="nav-item">Cloud Files</div>
+            </div>
+
+            <div class="nav-section">
+                <h3>Account</h3>
+                <div class="nav-item">System Logs</div>
+                <div class="nav-item">Settings</div>
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <div style="font-weight: 700; font-size: 18px;">CloudOS Retrieval</div>
+                <div class="system-time" id="clock">12:00:00 PM</div>
+            </header>
+
+            <div class="search-area">
+                <div style="margin-bottom: 30px;">
+                    <h2 style="margin:0; font-weight: 600;">Secure Search</h2>
+                    <p style="color: var(--text-dim); font-size: 14px;">Querying verified cloud databases...</p>
+                </div>
+
+                <script async src="https://cse.google.com/cse.js?cx=901d8e472ce2d4a08"></script>
+                <div class="gcse-search"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Simple Clock Function
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
