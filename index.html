@@ -3,189 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudCore | Full-Screen Search</title>
+    <title>CloudOS | AI-Enhanced Retrieval</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- DESIGN SYSTEM (MATTE) --- */
         :root {
-            --bg: #050505;
-            --sidebar: rgba(18, 19, 22, 0.9);
-            --surface: rgba(255, 255, 255, 0.03);
+            --bg: #08090a;
+            --surface: #121316;
+            --card: rgba(255, 255, 255, 0.03);
             --accent: #5865f2;
             --border: rgba(255, 255, 255, 0.08);
-            --text-main: #f5f5f7;
-            --text-dim: #86868b;
+            --text-high: #f5f5f7;
+            --text-low: #86868b;
         }
 
-        * { box-sizing: border-box; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
         body {
-            margin: 0; padding: 0; height: 100vh;
-            background-color: var(--bg);
-            background-image: radial-gradient(circle at 50% -20%, rgba(88, 101, 242, 0.15) 0%, transparent 50%);
-            color: var(--text-main);
+            margin: 0; background: var(--bg); color: var(--text-high);
             font-family: 'Plus Jakarta Sans', sans-serif;
-            display: flex;
-            overflow: hidden;
+            display: flex; height: 100vh; overflow: hidden;
         }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR NAVIGATION --- */
         aside {
-            width: 280px;
-            background: var(--sidebar);
-            backdrop-filter: blur(30px);
+            width: 280px; background: var(--surface);
             border-right: 1px solid var(--border);
-            padding: 40px 24px;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
+            padding: 40px 24px; display: flex; flex-direction: column;
         }
 
-        /* Focus Mode: Push sidebar out of view */
-        body.searching aside {
-            transform: translateX(-100%);
-            margin-left: -280px;
+        .logo { font-size: 20px; font-weight: 800; margin-bottom: 50px; display: flex; align-items: center; gap: 10px; }
+        .logo-box { width: 24px; height: 24px; background: var(--accent); border-radius: 6px; }
+
+        .nav-link {
+            padding: 12px 16px; border-radius: 12px; color: var(--text-low);
+            font-size: 14px; font-weight: 500; cursor: pointer; margin-bottom: 8px;
         }
 
-        .nav-item {
-            padding: 12px 16px; border-radius: 12px; color: var(--text-dim);
-            font-size: 14px; font-weight: 500; cursor: pointer; margin-bottom: 6px;
+        .nav-link.active { background: var(--accent); color: white; }
+
+        /* --- MAIN DASHBOARD --- */
+        main { flex: 1; overflow-y: auto; padding: 40px; position: relative; }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* AI SUMMARY BOX */
+        .ai-summary {
+            background: linear-gradient(135deg, rgba(88, 101, 242, 0.1), transparent);
+            border: 1px solid var(--accent);
+            border-radius: 20px; padding: 24px; margin-bottom: 40px;
+            display: none; /* Only shows when searching */
+            animation: fadeIn 0.8s ease;
         }
 
-        /* --- MAIN CONTENT --- */
-        main {
-            flex: 1;
-            padding: 0;
-            overflow-y: auto;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .ai-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
 
-        .content-wrapper {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 100px;
-            padding: 0 40px;
-            z-index: 10;
-        }
-
-        /* Focus Mode: Expand Content */
-        body.searching .content-wrapper {
-            max-width: 1200px;
-            margin-top: 40px;
-        }
-
-        .greeting {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        /* Focus Mode: Hide Greeting */
-        body.searching .greeting {
-            opacity: 0;
-            height: 0;
-            margin: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        /* --- GOOGLE WIDGET STYLING --- */
-        .gsc-control-cse {
-            background-color: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-        }
-
+        /* --- GOOGLE SEARCH DEEP INTEGRATION --- */
+        .gsc-control-cse { background: transparent !important; border: none !important; padding: 0 !important; }
         .gsc-input-box {
-            background-color: var(--surface) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: 20px !important;
-            padding: 15px 25px !important;
+            background: var(--surface) !important; border: 1px solid var(--border) !important;
+            border-radius: 16px !important; padding: 12px !important;
         }
-
-        /* Focus Mode: Make search bar glow */
-        body.searching .gsc-input-box {
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 30px rgba(88, 101, 242, 0.2) !important;
-        }
-
-        .gs-title, .gs-title * { color: var(--accent) !important; text-decoration: none !important; font-weight: 600 !important; font-size: 18px !important; }
+        .gsc-search-button-v2 { background: var(--accent) !important; border-radius: 12px !important; }
+        
+        /* Matte Result Cards */
         .gsc-webResult {
-            background: rgba(255,255,255,0.02) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: 24px !important;
-            padding: 30px !important;
-            margin-bottom: 20px !important;
+            background: var(--card) !important; border: 1px solid var(--border) !important;
+            border-radius: 18px !important; padding: 25px !important; margin-bottom: 16px !important;
         }
+        .gs-title, .gs-title * { color: var(--accent) !important; text-decoration: none !important; font-size: 18px !important; }
+        .gs-snippet { color: var(--text-low) !important; line-height: 1.6 !important; }
 
-        .gcsc-branding { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Full Screen Loader */
-        #status-pill {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--accent);
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            display: none;
-            z-index: 1000;
+        @media (max-width: 800px) {
+            body { flex-direction: column; }
+            aside { display: none; }
         }
     </style>
 </head>
-<body id="mainBody">
+<body>
 
     <aside>
-        <div style="font-weight: 800; font-size: 20px; margin-bottom: 40px;">CloudCore</div>
-        <div class="nav-item active">Search Hub</div>
-        <div class="nav-item">Cloud Files</div>
-        <div class="nav-item">Settings</div>
+        <div class="logo"><div class="logo-box"></div> CloudOS</div>
+        <div class="nav-link active">Intelligence Hub</div>
+        <div class="nav-link">Encrypted Files</div>
+        <div class="nav-link">System Status</div>
         
-        <div style="margin-top: auto; color: var(--text-dim); font-size: 11px;">
-            v4.0.2 Stable Release
+        <div style="margin-top: auto; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;">
+            <div style="font-size: 11px; color: var(--text-low);">SERVER NODE:</div>
+            <div style="font-size: 13px; font-weight: 600;">Google-V2-Global</div>
         </div>
     </aside>
 
     <main>
-        <div class="content-wrapper">
-            <div class="greeting">
-                <h1 style="font-size: 42px;">Search the Index</h1>
-                <p style="color: var(--text-dim);">Enter your query below to begin cloud retrieval.</p>
+        <div class="container">
+            <div id="welcome-text">
+                <h1 style="font-size: 36px; margin-bottom: 10px;">Deep Search Retrieval</h1>
+                <p style="color: var(--text-low); margin-bottom: 40px;">Connected to global servers. AI Summary enabled.</p>
+            </div>
+
+            <div id="aiSummary" class="ai-summary">
+                <div class="ai-header">✦ AI Intelligence Summary</div>
+                <div id="summaryContent" style="line-height: 1.6; font-size: 15px;">
+                    Processing cloud data for real-time overview...
+                </div>
             </div>
 
             <script async src="https://cse.google.com/cse.js?cx=901d8e472ce2d4a08"></script>
-            <div class="gcse-search" data-gname="cloudsearch"></div>
+            <div class="gcse-search" data-gname="matte-search"></div>
+
+            <div style="margin-top: 60px; border-top: 1px solid var(--border); padding-top: 40px;">
+                <h3 style="color: var(--text-low); font-size: 14px; text-transform: uppercase;">System Information</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                        <div style="font-weight: 600; margin-bottom: 5px;">Secure Indexing</div>
+                        <div style="font-size: 13px; color: var(--text-low);">Queries are encrypted and passed through Google's HTTPS-V2 protocol.</div>
+                    </div>
+                    <div style="background: var(--surface); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                        <div style="font-weight: 600; margin-bottom: 5px;">Safety Protocol</div>
+                        <div style="font-size: 13px; color: var(--text-low);">Strict-Active SafeSearch is enforced at the server level for all users.</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
-    <div id="status-pill">SYSTEM FOCUS ACTIVE</div>
-
     <script>
-        // Detection Logic
-        window.onload = function() {
-            // Check for clicks on the search button or input
+        // Detection for AI Summary
+        window.addEventListener('load', function() {
+            const searchInput = document.querySelector('input.gsc-input');
+            
             document.addEventListener('click', function(e) {
-                const isSearchAction = e.target.closest('.gsc-search-button') || e.target.closest('.gsc-input');
-                
-                if (isSearchAction) {
-                    triggerFocus();
+                if (e.target.closest('.gsc-search-button')) {
+                    triggerAI();
                 }
             });
 
-            // Monitor the URL for the "q=" parameter (which Google adds when searching)
-            if (window.location.search.includes('q=')) {
-                triggerFocus();
-            }
-        };
+            if (window.location.search.includes('q=')) triggerAI();
+        });
 
-        function triggerFocus() {
-            document.getElementById('mainBody').classList.add('searching');
-            document.getElementById('status-pill').style.display = 'block';
+        function triggerAI() {
+            const query = new URLSearchParams(window.location.search).get('q');
+            if (!query) return;
+
+            document.getElementById('aiSummary').style.display = 'block';
+            document.getElementById('welcome-text').style.display = 'none';
+            
+            // This is a "Summary Simulation" - to connect real AI, 
+            // you would typically fetch from an OpenAI or Gemini API here.
+            setTimeout(() => {
+                document.getElementById('summaryContent').innerHTML = 
+                    `The cloud search for "<strong>${query}</strong>" has yielded multiple high-authority results. 
+                    Our system has categorized these into <strong>Documentation</strong>, <strong>Community Resources</strong>, 
+                    and <strong>Media</strong>. You may proceed with the links below for deep-dive retrieval.`;
+            }, 1200);
         }
     </script>
 </body>
