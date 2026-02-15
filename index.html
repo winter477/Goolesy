@@ -3,200 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudOS | Unified Search</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>CloudCore | Full-Screen Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN SYSTEM --- */
         :root {
-            --bg: #0a0b0d;
-            --sidebar: #121316;
-            --surface: #1a1b1e;
+            --bg: #050505;
+            --sidebar: rgba(18, 19, 22, 0.9);
+            --surface: rgba(255, 255, 255, 0.03);
             --accent: #5865f2;
-            --border: #2d2e32;
-            --text-main: #ffffff;
-            --text-dim: #8e8e93;
-            --mac-red: #ff5f56;
-            --mac-yellow: #ffbd2e;
-            --mac-green: #27c93f;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f5f5f7;
+            --text-dim: #86868b;
         }
 
-        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        * { box-sizing: border-box; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        body, html {
-            margin: 0; padding: 0;
-            height: 100%;
-            background: var(--bg);
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% -20%, rgba(88, 101, 242, 0.15) 0%, transparent 50%);
             color: var(--text-main);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
             overflow: hidden;
-        }
-
-        /* --- LAYOUT --- */
-        .app-container {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            height: 100vh;
         }
 
         /* --- SIDEBAR --- */
         aside {
+            width: 280px;
             background: var(--sidebar);
+            backdrop-filter: blur(30px);
             border-right: 1px solid var(--border);
-            padding: 24px;
+            padding: 40px 24px;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            z-index: 100;
         }
 
-        .window-controls {
-            display: flex; gap: 8px; padding-bottom: 10px;
-        }
-
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .red { background: var(--mac-red); }
-        .yellow { background: var(--mac-yellow); }
-        .green { background: var(--mac-green); }
-
-        .nav-section h3 {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-dim);
-            margin-bottom: 15px;
+        /* Focus Mode: Push sidebar out of view */
+        body.searching aside {
+            transform: translateX(-100%);
+            margin-left: -280px;
         }
 
         .nav-item {
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-dim);
-            cursor: pointer;
-            margin-bottom: 4px;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: var(--surface);
-            color: var(--text-main);
+            padding: 12px 16px; border-radius: 12px; color: var(--text-dim);
+            font-size: 14px; font-weight: 500; cursor: pointer; margin-bottom: 6px;
         }
 
         /* --- MAIN CONTENT --- */
         main {
+            flex: 1;
             padding: 0;
+            overflow-y: auto;
+            position: relative;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
-            background: radial-gradient(circle at top right, #16171b, #0a0b0d);
-        }
-
-        header {
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(10px);
         }
 
-        .search-area {
-            flex: 1;
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
+        .content-wrapper {
             width: 100%;
+            max-width: 900px;
+            margin-top: 100px;
+            padding: 0 40px;
+            z-index: 10;
         }
 
-        /* --- GOOGLE WIDGET OVERRIDES --- */
-        /* Making the Google script match the Matte UI */
-        .gcse-search {
-            background: var(--surface) !important;
-            padding: 20px !important;
-            border-radius: 16px !important;
-            border: 1px solid var(--border) !important;
+        /* Focus Mode: Expand Content */
+        body.searching .content-wrapper {
+            max-width: 1200px;
+            margin-top: 40px;
         }
 
+        .greeting {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* Focus Mode: Hide Greeting */
+        body.searching .greeting {
+            opacity: 0;
+            height: 0;
+            margin: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* --- GOOGLE WIDGET STYLING --- */
         .gsc-control-cse {
             background-color: transparent !important;
             border: none !important;
+            padding: 0 !important;
         }
 
         .gsc-input-box {
-            background-color: #25262b !important;
+            background-color: var(--surface) !important;
             border: 1px solid var(--border) !important;
-            border-radius: 8px !important;
-            padding: 5px !important;
+            border-radius: 20px !important;
+            padding: 15px 25px !important;
         }
 
-        input.gsc-input {
-            color: white !important;
-            background: transparent !important;
+        /* Focus Mode: Make search bar glow */
+        body.searching .gsc-input-box {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 30px rgba(88, 101, 242, 0.2) !important;
         }
 
-        .gsc-search-button-v2 {
-            background-color: var(--accent) !important;
-            border-radius: 8px !important;
-            padding: 10px 20px !important;
+        .gs-title, .gs-title * { color: var(--accent) !important; text-decoration: none !important; font-weight: 600 !important; font-size: 18px !important; }
+        .gsc-webResult {
+            background: rgba(255,255,255,0.02) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 24px !important;
+            padding: 30px !important;
+            margin-bottom: 20px !important;
         }
 
-        /* --- UTILITY --- */
-        .system-time { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+        .gcsc-branding { display: none !important; }
 
-        @media (max-width: 850px) {
-            .app-container { grid-template-columns: 1fr; }
-            aside { display: none; }
+        /* Full Screen Loader */
+        #status-pill {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: none;
+            z-index: 1000;
         }
     </style>
 </head>
-<body>
+<body id="mainBody">
 
-    <div class="app-container">
-        <aside>
-            <div class="window-controls">
-                <div class="dot red"></div>
-                <div class="dot yellow"></div>
-                <div class="dot green"></div>
+    <aside>
+        <div style="font-weight: 800; font-size: 20px; margin-bottom: 40px;">CloudCore</div>
+        <div class="nav-item active">Search Hub</div>
+        <div class="nav-item">Cloud Files</div>
+        <div class="nav-item">Settings</div>
+        
+        <div style="margin-top: auto; color: var(--text-dim); font-size: 11px;">
+            v4.0.2 Stable Release
+        </div>
+    </aside>
+
+    <main>
+        <div class="content-wrapper">
+            <div class="greeting">
+                <h1 style="font-size: 42px;">Search the Index</h1>
+                <p style="color: var(--text-dim);">Enter your query below to begin cloud retrieval.</p>
             </div>
 
-            <div class="nav-section">
-                <h3>Workspace</h3>
-                <div class="nav-item active">Search Core</div>
-                <div class="nav-item">Documentation</div>
-                <div class="nav-item">Cloud Files</div>
-            </div>
+            <script async src="https://cse.google.com/cse.js?cx=901d8e472ce2d4a08"></script>
+            <div class="gcse-search" data-gname="cloudsearch"></div>
+        </div>
+    </main>
 
-            <div class="nav-section">
-                <h3>Account</h3>
-                <div class="nav-item">System Logs</div>
-                <div class="nav-item">Settings</div>
-            </div>
-        </aside>
-
-        <main>
-            <header>
-                <div style="font-weight: 700; font-size: 18px;">CloudOS Retrieval</div>
-                <div class="system-time" id="clock">12:00:00 PM</div>
-            </header>
-
-            <div class="search-area">
-                <div style="margin-bottom: 30px;">
-                    <h2 style="margin:0; font-weight: 600;">Secure Search</h2>
-                    <p style="color: var(--text-dim); font-size: 14px;">Querying verified cloud databases...</p>
-                </div>
-
-                <script async src="https://cse.google.com/cse.js?cx=901d8e472ce2d4a08"></script>
-                <div class="gcse-search"></div>
-            </div>
-        </main>
-    </div>
+    <div id="status-pill">SYSTEM FOCUS ACTIVE</div>
 
     <script>
-        // Simple Clock Function
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        // Detection Logic
+        window.onload = function() {
+            // Check for clicks on the search button or input
+            document.addEventListener('click', function(e) {
+                const isSearchAction = e.target.closest('.gsc-search-button') || e.target.closest('.gsc-input');
+                
+                if (isSearchAction) {
+                    triggerFocus();
+                }
+            });
+
+            // Monitor the URL for the "q=" parameter (which Google adds when searching)
+            if (window.location.search.includes('q=')) {
+                triggerFocus();
+            }
+        };
+
+        function triggerFocus() {
+            document.getElementById('mainBody').classList.add('searching');
+            document.getElementById('status-pill').style.display = 'block';
         }
-        setInterval(updateClock, 1000);
-        updateClock();
     </script>
 </body>
 </html>
